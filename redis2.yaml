@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: redisj
+    app: redisj
+    component: cache
+  name: redisj
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redisj
+  template:
+    metadata:
+      labels:
+        name: redisj
+        app: redisj
+        component: cache
+    spec:
+      containers:
+      - name: redisj
+        image: redis
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: redis-data
+          mountPath: /dataj
+        ports:
+        - containerPort: 6379
+          name: redisj
+        env:
+        - name: MASTER
+          value: "true"
+        - name: REDIS_PASS
+      volumes:
+      - name: redis-dataj
+        persistentVolumeClaim:
+          claimName: redisdb-pvcj
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redisj
+  labels:
+    app: redisj
+spec:
+  externalIPs:
+  -  192.168.1.110
+  ports:
+  - port: 6379
+    protocol: TCP
+  selector:
+   app: redisj
+  type: LoadBalancer
+___
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-pvj
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/dataj"
+
+-___
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redisdb-pvcj
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
