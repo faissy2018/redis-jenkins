@@ -2,47 +2,47 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    name: redis
-    app: redis
+    name: redisj
+    app: redisj
     component: cache
-  name: redis
+  name: redisj
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: redis
+      name: redisj
   template:
     metadata:
       labels:
-        name: redis
-        app: redis
+        name: redisj
+        app: redisj
         component: cache
     spec:
       containers:
-      - name: redis
+      - name: redisj
         image: redis
         imagePullPolicy: Always
         volumeMounts:
         - name: redis-data
-          mountPath: /data
+          mountPath: /dataj
         ports:
         - containerPort: 6379
-          name: redis
+          name: redisj
         env:
         - name: MASTER
           value: "true"
         - name: REDIS_PASS
       volumes:
-      - name: redis-data
+      - name: redis-dataj
         persistentVolumeClaim:
-          claimName: redisdb-pvc
+          claimName: redisdb-pvcj
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redisj
   labels:
-    app: redis
+    app: redisj
 spec:
   externalIPs:
   -  192.168.1.110
@@ -50,13 +50,14 @@ spec:
   - port: 6379
     protocol: TCP
   selector:
-   app: redis
+   app: redisj
   type: LoadBalancer
----
+___
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: redis-pv
+  name: redis-pvj
 spec:
   storageClassName: ""
   capacity:
@@ -64,12 +65,13 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/data"
----
+    path: "/mnt/dataj"
+
+-___
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: redisdb-pvc
+  name: redisdb-pvcj
 spec:
   storageClassName: ""
   accessModes:
