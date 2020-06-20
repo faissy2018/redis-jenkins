@@ -7,7 +7,7 @@ pipeline {
                 milestone(1)
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
-                    configs: 'redis.yml',
+                    configs: 'redis.yaml',
                     enableConfigSubstitution: true
                 )
                 }
