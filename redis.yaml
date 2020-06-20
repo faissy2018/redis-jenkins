@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: redis
+    app: redis
+    component: cache
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      labels:
+        name: redis
+        app: redis
+        component: cache
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: MASTER
+          value: "true"
+        - name: REDIS_PASS
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redisdb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  externalIPs:
+  -  192.168.1.110
+  ports:
+  - port: 6379
+    protocol: TCP
+  selector:
+   app: redis
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-pv
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redisdb-pvc
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
